@@ -18,13 +18,16 @@ jobs:
 
       - run: determinate-nixd fix hashes --auto-apply
 
-      - name: Push updated hashes and tag release
+      - name: Update flake inputs, push, and tag release
         run: |
           if ! git diff --quiet; then
+            # Font hashes changed — also bump nixpkgs and other inputs
+            nix flake update
+
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add --update --ignore-removal .
-            git commit -m "fix: update font hashes"
+            git add --all
+            git commit -m "fix: update font hashes and flake inputs"
             git push
 
             # Auto-increment patch version and push tag to trigger FlakeHub publish
