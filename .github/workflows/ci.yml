@@ -17,8 +17,8 @@ jobs:
 
       - uses: DeterminateSystems/determinate-nix-action@v3
 
-      - name: Check formatting
-        run: nix flake check -L
+      - name: Flake check
+        run: nix flake check --all-systems -L
 
       - name: Fix hash mismatches
         if: github.event_name == 'pull_request'
@@ -39,6 +39,3 @@ jobs:
 
           git checkout -
           git stash pop || true
-
-      - name: Build font packages
-        run: nix build .#sf-pro .#sf-compact .#sf-mono .#sf-arabic .#sf-armenian .#sf-georgian .#sf-hebrew .#ny
