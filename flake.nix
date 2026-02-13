@@ -86,7 +86,9 @@
       };
     in
     {
-      overlays.default = final: _prev: self.packages.${final.system};
+      overlays.default = _final: prev: {
+        apple-fonts = self.packages.${prev.system};
+      };
 
       packages = forEachSystem (
         system:

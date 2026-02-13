@@ -72,7 +72,7 @@ namespace:
   nixpkgs.overlays = [ inputs.apple-fonts.overlays.default ];
 
   # Then use directly:
-  fonts.packages = [ pkgs.sf-pro pkgs.sf-mono-nerd ];
+  fonts.packages = [ pkgs.apple-fonts.sf-pro pkgs.apple-fonts.sf-mono-nerd ];
 }
 ```
 
