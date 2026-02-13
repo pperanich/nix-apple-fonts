@@ -7,16 +7,16 @@ A Nix flake for Apple's San Francisco and New York font families, sourced direct
 
 ## Available Packages
 
-| Package | Nerd Font Variant |
-|---------|-------------------|
-| `sf-pro` | `sf-pro-nerd` |
-| `sf-compact` | `sf-compact-nerd` |
-| `sf-mono` | `sf-mono-nerd` |
-| `sf-arabic` | `sf-arabic-nerd` |
+| Package       | Nerd Font Variant  |
+| ------------- | ------------------ |
+| `sf-pro`      | `sf-pro-nerd`      |
+| `sf-compact`  | `sf-compact-nerd`  |
+| `sf-mono`     | `sf-mono-nerd`     |
+| `sf-arabic`   | `sf-arabic-nerd`   |
 | `sf-armenian` | `sf-armenian-nerd` |
 | `sf-georgian` | `sf-georgian-nerd` |
-| `sf-hebrew` | `sf-hebrew-nerd` |
-| `ny` | `ny-nerd` |
+| `sf-hebrew`   | `sf-hebrew-nerd`   |
+| `ny`          | `ny-nerd`          |
 
 > [!Tip]
 > Nerd Font variants are automatically patched with the [nerd font patcher](https://github.com/ryanoasis/nerd-fonts), adding common symbols suitable for terminals, status bars, etc.
@@ -81,7 +81,7 @@ Pre-built font packages are available via [Cachix](https://www.cachix.org/) to a
 ```nix
 nix.settings = {
   substituters = [ "https://nix-apple-fonts.cachix.org" ];
-  trusted-public-keys = [ "nix-apple-fonts.cachix.org-1:<key>" ];
+  trusted-public-keys = [ "nix-apple-fonts.cachix.org-1:+IufU9qEralI2eCib9vH4bv093Xo1F9l0rw24KzLEdg=" ];
 };
 ```
 
