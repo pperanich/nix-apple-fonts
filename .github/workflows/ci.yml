@@ -17,19 +17,11 @@ jobs:
 
       - uses: DeterminateSystems/determinate-nix-action@v3
 
-      - uses: cachix/cachix-action@v16
-        with:
-          name: nix-apple-fonts
-          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-
       - name: Check formatting
         run: nix flake check -L
 
-      - name: Build font packages
-        run: nix build .#sf-pro .#sf-compact .#sf-mono .#sf-arabic .#sf-armenian .#sf-georgian .#sf-hebrew .#ny
-
       - name: Fix hash mismatches
-        if: failure() && github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request'
         run: |
           git stash --include-untracked
           git fetch --depth=1 origin "$GITHUB_HEAD_REF"
@@ -47,3 +39,6 @@ jobs:
 
           git checkout -
           git stash pop || true
+
+      - name: Build font packages
+        run: nix build .#sf-pro .#sf-compact .#sf-mono .#sf-arabic .#sf-armenian .#sf-georgian .#sf-hebrew .#ny

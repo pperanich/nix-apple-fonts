@@ -1,4 +1,4 @@
-name: Publish tags to FlakeHub
+name: Publish
 
 on:
   push:
@@ -12,7 +12,7 @@ on:
         required: true
 
 jobs:
-  flakehub-publish:
+  publish:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -25,8 +25,19 @@ jobs:
 
       - uses: DeterminateSystems/determinate-nix-action@v3
 
+      - uses: cachix/cachix-action@v16
+        with:
+          name: nix-apple-fonts
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+
       - name: Build font packages
         run: nix build .#sf-pro .#sf-compact .#sf-mono .#sf-arabic .#sf-armenian .#sf-georgian .#sf-hebrew .#ny
+
+      - name: Push font packages to Cachix
+        run: |
+          for link in result*; do
+            cachix push nix-apple-fonts "$(readlink -f "$link")"
+          done
 
       - uses: DeterminateSystems/flakehub-push@main
         with:
