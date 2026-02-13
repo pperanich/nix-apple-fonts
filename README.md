@@ -76,28 +76,10 @@ namespace:
 }
 ```
 
-## Binary Cache
+## FlakeHub
 
-Pre-built font packages are available via [Cachix](https://www.cachix.org/) to
-avoid building from source.
+This flake is published to [FlakeHub](https://flakehub.com).
 
-### Cachix
-
-```nix
-nix.settings = {
-  substituters = [ "https://nix-apple-fonts.cachix.org" ];
-  trusted-public-keys = [ "nix-apple-fonts.cachix.org-1:+IufU9qEralI2eCib9vH4bv093Xo1F9l0rw24KzLEdg=" ];
-};
-```
-
-Or with the Cachix CLI:
-
-```sh
-cachix use nix-apple-fonts
-```
-
-### FlakeHub
-
-This flake is also published to [FlakeHub](https://flakehub.com). Users of
-[Determinate Nix](https://determinate.systems) get automatic cache hits via
-FlakeHub Cache with no additional configuration.
+> [!Note] Due to Apple's font license restrictions, pre-built font binaries are
+> not distributed via any public binary cache. Packages are built from source on
+> each machine, fetching the font files directly from Apple's servers.
