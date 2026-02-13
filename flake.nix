@@ -29,6 +29,15 @@
         treefmt-nix.lib.evalModule nixpkgs.legacyPackages.${system} {
           projectRootFile = "flake.nix";
           programs.nixfmt.enable = true;
+          programs.prettier.enable = true;
+          programs.prettier.settings = {
+            proseWrap = "always";
+          };
+          settings.formatter.prettier.includes = [
+            "*.md"
+            "*.yml"
+            "*.yaml"
+          ];
         }
       );
 

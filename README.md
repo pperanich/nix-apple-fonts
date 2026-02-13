@@ -1,9 +1,11 @@
 # nix-apple-fonts
 
-A Nix flake for Apple's San Francisco and New York font families, sourced directly from [Apple](https://developer.apple.com/fonts/).
+A Nix flake for Apple's San Francisco and New York font families, sourced
+directly from [Apple](https://developer.apple.com/fonts/).
 
-> [!Note]
-> This project is based on [Lyndeno/apple-fonts.nix](https://github.com/Lyndeno/apple-fonts.nix) by [Lyndeno](https://github.com/Lyndeno). Licensed under MIT.
+> [!Note] This project is based on
+> [Lyndeno/apple-fonts.nix](https://github.com/Lyndeno/apple-fonts.nix) by
+> [Lyndeno](https://github.com/Lyndeno). Licensed under MIT.
 
 ## Available Packages
 
@@ -18,8 +20,9 @@ A Nix flake for Apple's San Francisco and New York font families, sourced direct
 | `sf-hebrew`   | `sf-hebrew-nerd`   |
 | `ny`          | `ny-nerd`          |
 
-> [!Tip]
-> Nerd Font variants are automatically patched with the [nerd font patcher](https://github.com/ryanoasis/nerd-fonts), adding common symbols suitable for terminals, status bars, etc.
+> [!Tip] Nerd Font variants are automatically patched with the
+> [nerd font patcher](https://github.com/ryanoasis/nerd-fonts), adding common
+> symbols suitable for terminals, status bars, etc.
 
 ## Usage
 
@@ -61,7 +64,8 @@ A Nix flake for Apple's San Francisco and New York font families, sourced direct
 
 ### Via overlay
 
-An overlay is provided for users who prefer adding packages to the `pkgs` namespace:
+An overlay is provided for users who prefer adding packages to the `pkgs`
+namespace:
 
 ```nix
 {
@@ -74,7 +78,8 @@ An overlay is provided for users who prefer adding packages to the `pkgs` namesp
 
 ## Binary Cache
 
-Pre-built font packages are available via [Cachix](https://www.cachix.org/) to avoid building from source.
+Pre-built font packages are available via [Cachix](https://www.cachix.org/) to
+avoid building from source.
 
 ### Cachix
 
@@ -93,4 +98,6 @@ cachix use nix-apple-fonts
 
 ### FlakeHub
 
-This flake is also published to [FlakeHub](https://flakehub.com). Users of [Determinate Nix](https://determinate.systems) get automatic cache hits via FlakeHub Cache with no additional configuration.
+This flake is also published to [FlakeHub](https://flakehub.com). Users of
+[Determinate Nix](https://determinate.systems) get automatic cache hits via
+FlakeHub Cache with no additional configuration.
