@@ -19,6 +19,11 @@ jobs:
 
       - uses: DeterminateSystems/flakehub-cache-action@main
 
+      - uses: cachix/cachix-action@v16
+        with:
+          name: nix-apple-fonts
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+
       - name: Check formatting
         run: nix flake check -L
 

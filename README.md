@@ -71,3 +71,26 @@ An overlay is provided for users who prefer adding packages to the `pkgs` namesp
   fonts.packages = [ pkgs.sf-pro pkgs.sf-mono-nerd ];
 }
 ```
+
+## Binary Cache
+
+Pre-built font packages are available via [Cachix](https://www.cachix.org/) to avoid building from source.
+
+### Cachix
+
+```nix
+nix.settings = {
+  substituters = [ "https://nix-apple-fonts.cachix.org" ];
+  trusted-public-keys = [ "nix-apple-fonts.cachix.org-1:<key>" ];
+};
+```
+
+Or with the Cachix CLI:
+
+```sh
+cachix use nix-apple-fonts
+```
+
+### FlakeHub
+
+This flake is also published to [FlakeHub](https://flakehub.com). Users of [Determinate Nix](https://determinate.systems) get automatic cache hits via FlakeHub Cache with no additional configuration.
