@@ -12,13 +12,13 @@ jobs:
       id-token: write
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: DeterminateSystems/determinate-nix-action@v3
 
       - run: determinate-nixd fix hashes --auto-apply
 
-      - name: Push updated hashes
+      - name: Push updated hashes and tag release
         run: |
           if ! git diff --quiet; then
             git config user.name "github-actions[bot]"
@@ -26,4 +26,14 @@ jobs:
             git add --update --ignore-removal .
             git commit -m "fix: update font hashes"
             git push
+
+            # Auto-increment patch version and push tag to trigger FlakeHub publish
+            latest=$(git tag --sort=-v:refversion --list 'v*' | head -1)
+            if [ -z "$latest" ]; then
+              next="v0.1.0"
+            else
+              next=$(echo "$latest" | awk -F. '{print $1"."$2"."$3+1}')
+            fi
+            git tag "$next"
+            git push origin "$next"
           fi
