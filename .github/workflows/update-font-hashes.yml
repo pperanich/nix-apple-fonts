@@ -1,0 +1,29 @@
+name: Update font hashes
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+jobs:
+  update-hashes:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: DeterminateSystems/determinate-nix-action@v3
+
+      - run: determinate-nixd fix hashes --auto-apply
+
+      - name: Push updated hashes
+        run: |
+          if ! git diff --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add --update --ignore-removal .
+            git commit -m "fix: update font hashes"
+            git push
+          fi
