@@ -48,7 +48,7 @@ jobs:
             git push
 
             # Auto-increment patch version and push tag to trigger FlakeHub publish
-            latest=$(git tag --sort=-v:refversion --list 'v*' | head -1)
+            latest=$(git tag --sort=-v:refname --list 'v*' | head -1)
             if [ -z "$latest" ]; then
               next="v0.1.0"
             else
