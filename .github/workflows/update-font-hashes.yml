@@ -16,7 +16,24 @@ jobs:
 
       - uses: DeterminateSystems/determinate-nix-action@v3
 
+      # `fix hashes` only repairs mismatches the daemon has already seen, so
+      # attempt the builds first to record any stale Apple DMG hashes.
+      # Base packages cover all DMG fetches (nerd variants share the sources).
+      - name: Attempt builds to record hash mismatches
+        run: |
+          nix build \
+            .#sf-pro .#sf-compact .#sf-mono .#sf-arabic \
+            .#sf-armenian .#sf-georgian .#sf-hebrew .#ny \
+            --keep-going --no-link || true
+
       - run: determinate-nixd fix hashes --auto-apply
+
+      - name: Verify builds after hash fixes
+        run: |
+          nix build \
+            .#sf-pro .#sf-compact .#sf-mono .#sf-arabic \
+            .#sf-armenian .#sf-georgian .#sf-hebrew .#ny \
+            --keep-going --no-link
 
       - name: Update flake inputs, push, and tag release
         run: |
