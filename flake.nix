@@ -1,6 +1,7 @@
 {
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs-intel-darwin.url = "github:nixos/nixpkgs/nixpkgs-26.05-darwin";
     treefmt-nix = {
       url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -11,6 +12,7 @@
     {
       self,
       nixpkgs,
+      nixpkgs-intel-darwin,
       treefmt-nix,
     }:
     let
@@ -23,10 +25,11 @@
         "x86_64-linux"
       ];
       forEachSystem = lib.genAttrs systems;
+      nixpkgsFor = system: if system == "x86_64-darwin" then nixpkgs-intel-darwin else nixpkgs;
 
       treefmtEval = forEachSystem (
         system:
-        treefmt-nix.lib.evalModule nixpkgs.legacyPackages.${system} {
+        treefmt-nix.lib.evalModule (nixpkgsFor system).legacyPackages.${system} {
           projectRootFile = "flake.nix";
           programs.nixfmt.enable = true;
           programs.prettier.enable = true;
@@ -45,13 +48,13 @@
       fontDefs = {
         sf-pro = {
           url = "https://devimages-cdn.apple.com/design/resources/download/SF-Pro.dmg";
-          hash = "sha256-qQlPDem3idc1RO5Q/FKgiE1Kn3/PYt5Sl04yBPOnSmI=";
-          pkgName = "SF Pro Fonts.pkg";
+          hash = "sha256-loqzuLH5LC2K9h6waA9cIiTE541ZuYa/AEUCp/wBKRg=";
+          pkgName = "SFProFonts.pkg";
         };
         sf-compact = {
           url = "https://devimages-cdn.apple.com/design/resources/download/SF-Compact.dmg";
-          hash = "sha256-LIkAOWe+WaaGeqXeEgZjUtmmtEt4XPK5/4jvDXf/KPw=";
-          pkgName = "SF Compact Fonts.pkg";
+          hash = "sha256-wdDjROut1m62LwP4I3hMzknxeH9WVj+wmPygH8VUE1w=";
+          pkgName = "SFCompactFonts.pkg";
         };
         sf-mono = {
           url = "https://devimages-cdn.apple.com/design/resources/download/SF-Mono.dmg";
@@ -93,7 +96,7 @@
       packages = forEachSystem (
         system:
         let
-          pkgs = import nixpkgs {
+          pkgs = import (nixpkgsFor system) {
             inherit system;
             config.allowUnfree = true;
           };
@@ -114,21 +117,25 @@
                 };
 
                 nativeBuildInputs = [
-                  pkgs.undmg
-                  pkgs.p7zip
+                  pkgs._7zz
                 ]
                 ++ lib.optionals nerd [
                   pkgs.parallel
                   pkgs.nerd-font-patcher
                 ];
 
-                sourceRoot = ".";
+                sourceRoot = "source";
 
                 unpackPhase = ''
                   runHook preUnpack
-                  undmg $src
-                  7z x '${fontDef.pkgName}'
-                  7z x 'Payload~'
+                  mkdir "$sourceRoot"
+                  pushd "$sourceRoot"
+                  # Apple ships both HFS+ and APFS disk images.
+                  7zz e "$src" -r '${fontDef.pkgName}'
+                  7zz e '${fontDef.pkgName}' -r Payload
+                  7zz x Payload
+                  7zz x 'Payload~'
+                  popd
                   runHook postUnpack
                 '';
 
@@ -144,7 +151,7 @@
                   description = "Apple ${fontName} font family${lib.optionalString nerd " (Nerd Font patched)"}";
                   homepage = "https://developer.apple.com/fonts/";
                   license = lib.licenses.unfree;
-                  platforms = lib.platforms.all;
+                  platforms = systems;
                 };
               }
               // lib.optionalAttrs nerd {

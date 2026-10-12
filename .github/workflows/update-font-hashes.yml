@@ -13,6 +13,8 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - uses: DeterminateSystems/determinate-nix-action@v3
 
@@ -24,23 +26,31 @@ jobs:
           nix build \
             .#sf-pro .#sf-compact .#sf-mono .#sf-arabic \
             .#sf-armenian .#sf-georgian .#sf-hebrew .#ny \
-            --keep-going --no-link || true
+            --keep-going --no-link -L || true
 
       - run: determinate-nixd fix hashes --auto-apply
+
+      - name: Update flake inputs after hash changes
+        run: |
+          if ! git diff --quiet; then
+            nix flake update
+          fi
+
+      - name: Verify flake after updates
+        run: |
+          nix flake check --all-systems --no-build
+          nix flake check -L
 
       - name: Verify builds after hash fixes
         run: |
           nix build \
             .#sf-pro .#sf-compact .#sf-mono .#sf-arabic \
             .#sf-armenian .#sf-georgian .#sf-hebrew .#ny \
-            --keep-going --no-link
+            --keep-going --no-link -L
 
-      - name: Update flake inputs, push, and tag release
+      - name: Push updates and tag release
         run: |
           if ! git diff --quiet; then
-            # Font hashes changed — also bump nixpkgs and other inputs
-            nix flake update
-
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add --all
