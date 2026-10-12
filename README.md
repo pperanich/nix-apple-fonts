@@ -3,9 +3,7 @@
 A Nix flake for Apple's San Francisco and New York font families, sourced
 directly from [Apple](https://developer.apple.com/fonts/).
 
-Supports Linux on x86_64 and aarch64, and macOS on Apple Silicon and Intel.
-Intel Mac packages use the separate `nixpkgs-intel-darwin` input, pinned to
-Nixpkgs 26.05 because newer Nixpkgs releases no longer support that platform.
+Supports Linux on x86_64 and aarch64, and macOS on Apple Silicon.
 
 > [!Note] This project is based on
 > [Lyndeno/apple-fonts.nix](https://github.com/Lyndeno/apple-fonts.nix) by

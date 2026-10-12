@@ -1,7 +1,6 @@
 {
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    nixpkgs-intel-darwin.url = "github:nixos/nixpkgs/nixpkgs-26.05-darwin";
     treefmt-nix = {
       url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -12,7 +11,6 @@
     {
       self,
       nixpkgs,
-      nixpkgs-intel-darwin,
       treefmt-nix,
     }:
     let
@@ -21,15 +19,13 @@
       systems = [
         "aarch64-darwin"
         "aarch64-linux"
-        "x86_64-darwin"
         "x86_64-linux"
       ];
       forEachSystem = lib.genAttrs systems;
-      nixpkgsFor = system: if system == "x86_64-darwin" then nixpkgs-intel-darwin else nixpkgs;
 
       treefmtEval = forEachSystem (
         system:
-        treefmt-nix.lib.evalModule (nixpkgsFor system).legacyPackages.${system} {
+        treefmt-nix.lib.evalModule nixpkgs.legacyPackages.${system} {
           projectRootFile = "flake.nix";
           programs.nixfmt.enable = true;
           programs.prettier.enable = true;
@@ -96,7 +92,7 @@
       packages = forEachSystem (
         system:
         let
-          pkgs = import (nixpkgsFor system) {
+          pkgs = import nixpkgs {
             inherit system;
             config.allowUnfree = true;
           };
