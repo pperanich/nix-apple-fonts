@@ -46,8 +46,8 @@ Supports Linux on x86_64 and aarch64, and macOS on Apple Silicon.
 { pkgs, inputs, ... }:
 {
   fonts.packages = [
-    inputs.apple-fonts.packages.${pkgs.system}.sf-pro
-    inputs.apple-fonts.packages.${pkgs.system}.sf-mono-nerd
+    inputs.apple-fonts.packages.${pkgs.stdenv.hostPlatform.system}.sf-pro
+    inputs.apple-fonts.packages.${pkgs.stdenv.hostPlatform.system}.sf-mono-nerd
   ];
 }
 ```
@@ -58,8 +58,8 @@ Supports Linux on x86_64 and aarch64, and macOS on Apple Silicon.
 { pkgs, inputs, ... }:
 {
   home.packages = [
-    inputs.apple-fonts.packages.${pkgs.system}.sf-pro
-    inputs.apple-fonts.packages.${pkgs.system}.ny
+    inputs.apple-fonts.packages.${pkgs.stdenv.hostPlatform.system}.sf-pro
+    inputs.apple-fonts.packages.${pkgs.stdenv.hostPlatform.system}.ny
   ];
 }
 ```
@@ -67,10 +67,12 @@ Supports Linux on x86_64 and aarch64, and macOS on Apple Silicon.
 ### Via overlay
 
 An overlay is provided for users who prefer adding packages to the `pkgs`
-namespace:
+namespace. Because the overlay builds against your `pkgs` instance, unfree
+packages must be allowed (`allowUnfree = true` or `allowUnfreePredicate`):
 
 ```nix
 {
+  nixpkgs.config.allowUnfree = true;
   nixpkgs.overlays = [ inputs.apple-fonts.overlays.default ];
 
   # Then use directly:

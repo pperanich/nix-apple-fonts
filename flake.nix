@@ -83,92 +83,96 @@
           pkgName = "NY Fonts.pkg";
         };
       };
+
+      makeAppleFont =
+        {
+          lib,
+          stdenvNoCC,
+          fetchurl,
+          _7zz,
+          parallel,
+          nerd-font-patcher,
+          fontName,
+          fontDef,
+          nerd ? false,
+        }:
+        stdenvNoCC.mkDerivation (
+          {
+            pname = if nerd then "${fontName}-nerd" else fontName;
+            version = "0-unstable-2025-02-13";
+
+            src = fetchurl {
+              inherit (fontDef) url hash;
+            };
+
+            nativeBuildInputs = [
+              _7zz
+            ]
+            ++ lib.optionals nerd [
+              parallel
+              nerd-font-patcher
+            ];
+
+            sourceRoot = "source";
+
+            unpackPhase = ''
+              runHook preUnpack
+              mkdir "$sourceRoot"
+              pushd "$sourceRoot"
+              # Apple ships both HFS+ and APFS disk images.
+              7zz e "$src" -r '${fontDef.pkgName}'
+              7zz e '${fontDef.pkgName}' -r Payload
+              7zz x Payload
+              7zz x 'Payload~'
+              popd
+              runHook postUnpack
+            '';
+
+            installPhase = ''
+              runHook preInstall
+              mkdir -p "$out/share/fonts/opentype" "$out/share/fonts/truetype"
+              find -name '*.otf' ${lib.optionalString nerd "-maxdepth 1"} -exec install -Dm644 -t "$out/share/fonts/opentype" {} +
+              find -name '*.ttf' ${lib.optionalString nerd "-maxdepth 1"} -exec install -Dm644 -t "$out/share/fonts/truetype" {} +
+              runHook postInstall
+            '';
+
+            meta = {
+              description = "Apple ${fontName} font family${lib.optionalString nerd " (Nerd Font patched)"}";
+              homepage = "https://developer.apple.com/fonts/";
+              license = lib.licenses.unfree;
+              platforms = lib.platforms.all;
+            };
+          }
+          // lib.optionalAttrs nerd {
+            buildPhase = ''
+              runHook preBuild
+              find -name '*.ttf' -o -name '*.otf' -print0 \
+                | parallel --will-cite -j $NIX_BUILD_CORES -0 nerd-font-patcher --no-progressbars -c {}
+              runHook postBuild
+            '';
+          }
+        );
     in
     {
-      overlays.default = _final: prev: {
-        apple-fonts = self.packages.${prev.system};
+      overlays.default = final: _prev: {
+        apple-fonts = final.lib.concatMapAttrs (fontName: fontDef: {
+          ${fontName} = final.callPackage makeAppleFont {
+            inherit fontName fontDef;
+          };
+          "${fontName}-nerd" = final.callPackage makeAppleFont {
+            inherit fontName fontDef;
+            nerd = true;
+          };
+        }) fontDefs;
       };
 
       packages = forEachSystem (
         system:
-        let
-          pkgs = import nixpkgs {
-            inherit system;
-            config.allowUnfree = true;
-          };
-
-          makeAppleFont =
-            {
-              fontName,
-              fontDef,
-              nerd ? false,
-            }:
-            pkgs.stdenvNoCC.mkDerivation (
-              {
-                pname = if nerd then "${fontName}-nerd" else fontName;
-                version = "0-unstable-2025-02-13";
-
-                src = pkgs.fetchurl {
-                  inherit (fontDef) url hash;
-                };
-
-                nativeBuildInputs = [
-                  pkgs._7zz
-                ]
-                ++ lib.optionals nerd [
-                  pkgs.parallel
-                  pkgs.nerd-font-patcher
-                ];
-
-                sourceRoot = "source";
-
-                unpackPhase = ''
-                  runHook preUnpack
-                  mkdir "$sourceRoot"
-                  pushd "$sourceRoot"
-                  # Apple ships both HFS+ and APFS disk images.
-                  7zz e "$src" -r '${fontDef.pkgName}'
-                  7zz e '${fontDef.pkgName}' -r Payload
-                  7zz x Payload
-                  7zz x 'Payload~'
-                  popd
-                  runHook postUnpack
-                '';
-
-                installPhase = ''
-                  runHook preInstall
-                  mkdir -p "$out/share/fonts/opentype" "$out/share/fonts/truetype"
-                  find -name '*.otf' ${lib.optionalString nerd "-maxdepth 1"} -exec install -Dm644 -t "$out/share/fonts/opentype" {} +
-                  find -name '*.ttf' ${lib.optionalString nerd "-maxdepth 1"} -exec install -Dm644 -t "$out/share/fonts/truetype" {} +
-                  runHook postInstall
-                '';
-
-                meta = {
-                  description = "Apple ${fontName} font family${lib.optionalString nerd " (Nerd Font patched)"}";
-                  homepage = "https://developer.apple.com/fonts/";
-                  license = lib.licenses.unfree;
-                  platforms = systems;
-                };
-              }
-              // lib.optionalAttrs nerd {
-                buildPhase = ''
-                  runHook preBuild
-                  find -name '*.ttf' -o -name '*.otf' -print0 \
-                    | parallel --will-cite -j $NIX_BUILD_CORES -0 nerd-font-patcher --no-progressbars -c {}
-                  runHook postBuild
-                '';
-              }
-            );
-        in
-        lib.concatMapAttrs (fontName: fontDef: {
-          ${fontName} = makeAppleFont {
-            inherit fontName fontDef;
-          };
-          "${fontName}-nerd" = makeAppleFont {
-            inherit fontName fontDef;
-            nerd = true;
-          };
-        }) fontDefs
+        (import nixpkgs {
+          inherit system;
+          config.allowUnfree = true;
+          overlays = [ self.overlays.default ];
+        }).apple-fonts
       );
 
       formatter = forEachSystem (system: treefmtEval.${system}.config.build.wrapper);
